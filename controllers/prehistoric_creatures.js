@@ -14,6 +14,18 @@ router.get('/new', (req,res)=>{
     res.render('prehistoric_creatures/new.ejs')
 })
 
+router.get("/edit/:idx", (req,res)=>{
+    // get creatures data from json file
+    let creatures = fs.readFileSync("./prehistoric_creatures.json")
+    // Converter JSON file in Javascript - array
+    let creatureData = JSON.parse(creatures)
+
+    // get array index from url parameter
+    let creatureIndex = req.params.idx
+
+    res.render('prehistoric_creatures/edit.ejs', {myCreature: creatureData[creatureIndex], creatureIdx: creatureIndex})
+})
+
 // show route
 router.get('/:idx', (req,res)=>{
     // get creature data from json file
@@ -22,7 +34,7 @@ router.get('/:idx', (req,res)=>{
     let creaturesData = JSON.parse(creatures)
 
     // get array index from url parameter
-    let creatureIndex = parseInt(req.params.idx)
+    let creatureIndex = req.params.idx
 
     res.render('prehistoric_creatures/show.ejs', {creature: creaturesData[creatureIndex]})
 
@@ -42,6 +54,34 @@ router.post('/', (req,res)=>{
 
     // redirect to the GET /dinosaurs route
     res.redirect('/prehistoric_creatures')
+})
+
+router.delete("/:idx", (req,res)=>{
+    let creatures = fs.readFileSync("./prehistoric_creatures.json")
+    let creaturesData = JSON.parse(creatures)
+
+    // remove the delete creature from the creatures array - 1st arg is start point, 2 snd lenght
+    creaturesData.splice(req.params.idx,1)
+
+    // save the new dinosaurs to the data.json file
+    fs.writeFileSync('./prehistoric_creatures.json', JSON.stringify(creaturesData))
+    
+     res.redirect('/prehistoric_creatures')
+
+})
+
+router.put("/:idx", (req,res)=>{
+    let creatures = fs.readFileSync("./prehistoric_creatures.json")
+    let creaturesData = JSON.parse(creatures)
+
+    // get array index from url parameter
+    creaturesData[req.params.idx].type = req.body.type
+    creaturesData[req.params.idx].img_url = req.body.img_url
+
+     // save the new creature to the data.json file
+     fs.writeFileSync('./prehistoric_creatures.json', JSON.stringify(creaturesData))
+    
+     res.redirect('/prehistoric_creatures')
 })
 
 module.exports = router;
